@@ -150,7 +150,7 @@ flowchart TB
     QUERY --> S10
     QUERY --> S13
     S12 <-->|"search"| QDRANT
-    S15 -->|"insufficient: rewrite"| S12
+    S15 -->|"insufficient: rewrite (multi-hop)"| S12
 
     S15 -->|"sufficient context"| ROUTE{"Quantitative<br/>or narrative?"}:::generation
 
