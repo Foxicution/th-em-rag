@@ -2,6 +2,8 @@
 
 A multi-hop RAG agent that answers complex questions by searching a document corpus and performing precise arithmetic. Built with LangGraph and Gemini.
 
+See the full system design in [architecture.md](architecture.md).
+
 ## Setup
 
 ```bash
