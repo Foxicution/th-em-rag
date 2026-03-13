@@ -1,3 +1,4 @@
 task.md
 .env
 **/__pycache__
+.chroma/
