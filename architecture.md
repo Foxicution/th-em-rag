@@ -19,7 +19,7 @@ The baseline RAG pipeline fails in four ways **[T]**:
 
 Each failure mode might have multiple underlying causes. A single "fix" per failure mode leaves the others unaddressed.
 
-### F1 — Information Fragmentation
+### F1 Information Fragmentation
 [↑ back to failure modes](#failure-modes)
 
 | # | Cause | Why it happens |
@@ -31,7 +31,7 @@ Each failure mode might have multiple underlying causes. A single "fix" per fail
 | C1.5 | **Implicit references become meaningless** | "As shown in the previous section", "the aforementioned trend" — these are common in research reports and become dangling pointers when extracted as standalone chunks. |
 | C1.6 | **Vocabulary mismatch between query and documents** | User says "eco-friendly containers", document says "sustainable packaging". Dense retrieval catches some of this, but not all — especially for domain-specific jargon. |
 
-### F2 — Temporal and Metadata Blindness
+### F2 Temporal and Metadata Blindness
 [↑ back to failure modes](#failure-modes)
 
 | # | Cause | Why it happens |
@@ -44,7 +44,7 @@ Each failure mode might have multiple underlying causes. A single "fix" per fail
 | C2.6 | **Negation blindness** | "Countries that did NOT adopt sustainable packaging" has nearly identical embeddings to "countries that adopted sustainable packaging". Dense retrieval can't distinguish negation. |
 | C2.7 | **Quantitative reasoning impossible via embeddings** | "Markets with growth above 10%" — no embedding captures numeric thresholds. This requires structured metadata queries, not vector similarity. |
 
-### F3 — Structural Data Loss
+### F3 Structural Data Loss
 [↑ back to failure modes](#failure-modes)
 
 | # | Cause | Why it happens |
@@ -56,7 +56,7 @@ Each failure mode might have multiple underlying causes. A single "fix" per fail
 | C3.5 | **Footnotes and annotations disconnected from their tables** | "* Adjusted for inflation" at the bottom of the page gets separated from the table it annotates. The numbers are meaningless without the footnote. |
 | C3.6 | **Tables embed poorly as vectors** | Even when correctly extracted, tabular data ("EU | 31% | 54% | 2024") doesn't produce meaningful embeddings. Semantic search can't match "what was the EU adoption rate?" to a row of numbers. |
 
-### F4 — Hallucination and Groundedness
+### F4 Hallucination and Groundedness
 [↑ back to failure modes](#failure-modes)
 
 | # | Cause | Why it happens |
@@ -234,7 +234,7 @@ flowchart TB
 
 ---
 
-## Cause → Solution Traceability
+## Cause-Solution Traceability
 
 Every root cause maps to at least one solution. Every solution maps to at least one cause.
 
