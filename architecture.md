@@ -8,10 +8,10 @@ The baseline RAG pipeline fails in four ways **[T]**:
 
 | #   | Failure Mode                                                                             | Example                                                                                                             | Causes                                                |
 | --- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
-| F1  | Fails to find and connect relevant information scattered across multiple reports **[T]** | A conclusion on page 5 references supporting data on page 2 **[T]**; answer requires combining two separate reports | [[#F1 — Information Fragmentation\|6 causes →]]       |
-| F2  | Retrieves outdated documents, ignoring publication dates **[T]**                         | Returns a 2018 document when the user asks about "the last 2 years" **[T]**                                         | [[#F2 — Temporal and Metadata Blindness\|7 causes →]] |
-| F3  | Tables and structured data treated as garbled text **[T]**                               | Multi-column layouts and embedded tables **[T]**; table rows become unreadable number sequences                     | [[#F3 — Structural Data Loss\|6 causes →]]            |
-| F4  | LLM hallucinates — confident but incorrect answers without citing sources **[T]**        | Generates plausible-sounding statistics that don't exist in any source document                                     | [[#F4 — Hallucination and Groundedness\|8 causes →]]  |
+| F1  | Fails to find and connect relevant information scattered across multiple reports **[T]** | A conclusion on page 5 references supporting data on page 2 **[T]**; answer requires combining two separate reports | [6 causes →](#f1-information-fragmentation)       |
+| F2  | Retrieves outdated documents, ignoring publication dates **[T]**                         | Returns a 2018 document when the user asks about "the last 2 years" **[T]**                                         | [7 causes →](#f2-temporal-and-metadata-blindness) |
+| F3  | Tables and structured data treated as garbled text **[T]**                               | Multi-column layouts and embedded tables **[T]**; table rows become unreadable number sequences                     | [6 causes →](#f3-structural-data-loss)            |
+| F4  | LLM hallucinates — confident but incorrect answers without citing sources **[T]**        | Generates plausible-sounding statistics that don't exist in any source document                                     | [8 causes →](#f4-hallucination-and-groundedness)  |
 
 ---
 
@@ -20,7 +20,7 @@ The baseline RAG pipeline fails in four ways **[T]**:
 Each failure mode might have multiple underlying causes. A single "fix" per failure mode leaves the others unaddressed.
 
 ### F1 — Information Fragmentation
-[[#Failure Modes|↑ back to failure modes]]
+[↑ back to failure modes](#failure-modes)
 
 | # | Cause | Why it happens |
 |---|-------|---------------|
@@ -32,7 +32,7 @@ Each failure mode might have multiple underlying causes. A single "fix" per fail
 | C1.6 | **Vocabulary mismatch between query and documents** | User says "eco-friendly containers", document says "sustainable packaging". Dense retrieval catches some of this, but not all — especially for domain-specific jargon. |
 
 ### F2 — Temporal and Metadata Blindness
-[[#Failure Modes|↑ back to failure modes]]
+[↑ back to failure modes](#failure-modes)
 
 | # | Cause | Why it happens |
 |---|-------|---------------|
@@ -45,7 +45,7 @@ Each failure mode might have multiple underlying causes. A single "fix" per fail
 | C2.7 | **Quantitative reasoning impossible via embeddings** | "Markets with growth above 10%" — no embedding captures numeric thresholds. This requires structured metadata queries, not vector similarity. |
 
 ### F3 — Structural Data Loss
-[[#Failure Modes|↑ back to failure modes]]
+[↑ back to failure modes](#failure-modes)
 
 | # | Cause | Why it happens |
 |---|-------|---------------|
@@ -57,7 +57,7 @@ Each failure mode might have multiple underlying causes. A single "fix" per fail
 | C3.6 | **Tables embed poorly as vectors** | Even when correctly extracted, tabular data ("EU | 31% | 54% | 2024") doesn't produce meaningful embeddings. Semantic search can't match "what was the EU adoption rate?" to a row of numbers. |
 
 ### F4 — Hallucination and Groundedness
-[[#Failure Modes|↑ back to failure modes]]
+[↑ back to failure modes](#failure-modes)
 
 | # | Cause | Why it happens |
 |---|-------|---------------|
@@ -195,42 +195,42 @@ flowchart TB
 
 | Solution | Addresses | Description |
 |----------|-----------|-------------|
-| **[[#S1. Layout-Aware Parsing\|S1. Layout-aware parsing]]** | C3.1, C3.2, C3.3 | Use a structure-aware parser (Docling, LlamaParse) that detects columns, tables, headers, and reading order before text extraction. |
-| **[[#S2. Dual Table Representation\|S2. Dual table representation]]** | C3.2, C3.6 | Store each table as both (a) structured markdown preserving rows/columns for generation, and (b) a natural language summary for retrieval. |
-| **[[#S3. Recursive Paragraph-Aware Chunking\|S3. Recursive paragraph-aware chunking]]** | C1.1, C1.5 | Split at paragraph/sentence boundaries respecting document structure (512-1024 tokens). Preserve section hierarchy. Overlap not recommended by default — contextual enrichment (S4) and parent linking (S5) solve context loss more effectively [^chroma-chunking]. |
-| **[[#S4. Contextual Enrichment\|S4. Contextual enrichment]]** | C1.2, C1.5, C1.6 | Prepend each chunk with document title, section heading, and a brief LLM-generated context sentence before embedding. Turns ambiguous chunks into self-contained units. |
-| **[[#S5. Parent Section Linking\|S5. Parent section linking]]** | C1.1 | Each chunk stores a `parent_section_id`. At generation time, retrieve the small chunk for precision, expand to the full parent section for context. |
-| **[[#S6. Document Summaries\|S6. Document summaries]]** | C1.4, C4.5 | Generate a summary per document capturing the overall narrative. Stored as a separate searchable chunk. Enables cross-document discovery for broad questions. |
-| **[[#S7. Metadata Extraction\|S7. Metadata extraction]]** | C2.1, C2.3, C2.4 | Extract and store publication_date, region, document_type, report_series as structured metadata fields at indexing time. |
-| **[[#S8. Table Footnote Association\|S8. Table footnote association]]** | C3.5 | During parsing, link footnotes/annotations to their parent table. Store them together as a single unit. |
-| **[[#S9. Vision LLM Fallback\|S9. Vision LLM fallback for figures]]** | C3.4, C3.3 | For charts/figures/complex tables where text extraction fails, pass the page image through a vision LLM (GPT-4o, Gemini) to extract data. Fallback, not primary path — slower and costlier. |
+| **[S1. Layout-aware parsing](#s1-layout-aware-parsing)** | C3.1, C3.2, C3.3 | Use a structure-aware parser (Docling, LlamaParse) that detects columns, tables, headers, and reading order before text extraction. |
+| **[S2. Dual table representation](#s2-dual-table-representation)** | C3.2, C3.6 | Store each table as both (a) structured markdown preserving rows/columns for generation, and (b) a natural language summary for retrieval. |
+| **[S3. Recursive paragraph-aware chunking](#s3-recursive-paragraph-aware-chunking)** | C1.1, C1.5 | Split at paragraph/sentence boundaries respecting document structure (512-1024 tokens). Preserve section hierarchy. Overlap not recommended by default — contextual enrichment (S4) and parent linking (S5) solve context loss more effectively [^chroma-chunking]. |
+| **[S4. Contextual enrichment](#s4-contextual-enrichment)** | C1.2, C1.5, C1.6 | Prepend each chunk with document title, section heading, and a brief LLM-generated context sentence before embedding. Turns ambiguous chunks into self-contained units. |
+| **[S5. Parent section linking](#s5-parent-section-linking)** | C1.1 | Each chunk stores a `parent_section_id`. At generation time, retrieve the small chunk for precision, expand to the full parent section for context. |
+| **[S6. Document summaries](#s6-document-summaries)** | C1.4, C4.5 | Generate a summary per document capturing the overall narrative. Stored as a separate searchable chunk. Enables cross-document discovery for broad questions. |
+| **[S7. Metadata extraction](#s7-metadata-extraction)** | C2.1, C2.3, C2.4 | Extract and store publication_date, region, document_type, report_series as structured metadata fields at indexing time. |
+| **[S8. Table footnote association](#s8-table-footnote-association)** | C3.5 | During parsing, link footnotes/annotations to their parent table. Store them together as a single unit. |
+| **[S9. Vision LLM fallback for figures](#s9-vision-llm-fallback)** | C3.4, C3.3 | For charts/figures/complex tables where text extraction fails, pass the page image through a vision LLM (GPT-4o, Gemini) to extract data. Fallback, not primary path — slower and costlier. |
 
 ### Retrieval-Time Solutions
 
 | Solution | Addresses | Description |
 |----------|-----------|-------------|
-| **[[#S10. Temporal Resolution\|S10. Temporal resolution]]** | C2.2 | Before retrieval, resolve temporal expressions ("last 2 years" → `date >= 2024-03-13`, "Q3 2025" → date range) via LLM call or regex rules. |
-| **[[#S11. Metadata Pre-Filtering\|S11. Metadata pre-filtering]]** **[T]** | C2.1, C2.3, C2.4, C2.5 | Beyond simple cosine similarity **[T]**: apply resolved date ranges, regions, document types as pre-filters at the vector DB level. Old/irrelevant documents excluded before similarity ranking, not after. |
-| **[[#S12. Hybrid Search\|S12. Hybrid search (dense + BM25)]]** **[T]** | C1.6, C2.6 | Beyond simple cosine similarity **[T]**: run parallel dense (semantic) and sparse (keyword) retrieval, fuse via Reciprocal Rank Fusion. Dense catches paraphrases; BM25 catches exact terms, product names, report IDs, and handles negation better. |
-| **[[#S13. Query Decomposition\|S13. Query decomposition]]** | C1.3, C1.4 | LLM classifies query complexity. Complex queries decomposed into 2-4 focused sub-queries, each retrieving independently. Results merged before reranking. |
-| **[[#S14. Cross-Encoder Reranking\|S14. Cross-encoder reranking]]** **[T]** | C1.6, C2.5, C2.6 | Beyond simple cosine similarity **[T]**: top-50 candidates re-scored by a cross-encoder that processes query + document together. Catches fine-grained relevance that bi-encoders miss. |
-| **[[#S15. Agentic Retry Loop\|S15. Agentic retry loop]]** **[T]** | C1.4, C4.2, C4.5 | After retrieval, LLM evaluates sufficiency. If context is insufficient, rewrites the query targeting missing information **[T]**. Capped at 2-3 retries. |
-| **[[#S16. Chunk-Type Boosting\|S16. Chunk-type boosting]]** | C3.6 | When the query asks for quantitative data ("what percentage", "how many"), boost table-type chunks in retrieval scoring. |
+| **[S10. Temporal resolution](#s10-temporal-resolution)** | C2.2 | Before retrieval, resolve temporal expressions ("last 2 years" → `date >= 2024-03-13`, "Q3 2025" → date range) via LLM call or regex rules. |
+| **[S11. Metadata pre-filtering](#s11-metadata-pre-filtering)** **[T]** | C2.1, C2.3, C2.4, C2.5 | Beyond simple cosine similarity **[T]**: apply resolved date ranges, regions, document types as pre-filters at the vector DB level. Old/irrelevant documents excluded before similarity ranking, not after. |
+| **[S12. Hybrid search (dense + BM25)](#s12-hybrid-search)** **[T]** | C1.6, C2.6 | Beyond simple cosine similarity **[T]**: run parallel dense (semantic) and sparse (keyword) retrieval, fuse via Reciprocal Rank Fusion. Dense catches paraphrases; BM25 catches exact terms, product names, report IDs, and handles negation better. |
+| **[S13. Query decomposition](#s13-query-decomposition)** | C1.3, C1.4 | LLM classifies query complexity. Complex queries decomposed into 2-4 focused sub-queries, each retrieving independently. Results merged before reranking. |
+| **[S14. Cross-encoder reranking](#s14-cross-encoder-reranking)** **[T]** | C1.6, C2.5, C2.6 | Beyond simple cosine similarity **[T]**: top-50 candidates re-scored by a cross-encoder that processes query + document together. Catches fine-grained relevance that bi-encoders miss. |
+| **[S15. Agentic retry loop](#s15-agentic-retry-loop)** **[T]** | C1.4, C4.2, C4.5 | After retrieval, LLM evaluates sufficiency. If context is insufficient, rewrites the query targeting missing information **[T]**. Capped at 2-3 retries. |
+| **[S16. Chunk-type boosting](#s16-chunk-type-boosting)** | C3.6 | When the query asks for quantitative data ("what percentage", "how many"), boost table-type chunks in retrieval scoring. |
 
 ### Generation-Time Solutions
 
 | Solution | Addresses | Description |
 |----------|-----------|-------------|
-| **[[#S17. Structured Output with Citation Enforcement\|S17. Structured output with citation enforcement]]** **[T]** | C4.1, C4.4, C4.5, C4.7, C4.8 | Pydantic schema (`Answer → Claims → Citations`) enforced via structured output (BAML, Instructor, or provider-native). Every claim requires citations with UUIDs (hallucination canaries), `publication_date` (temporal attribution), and `conflicts_with` (conflict surfacing) **[T]**. |
-| **[[#S18. Table QA Models\|S18. Table QA models]]** | C4.6, C4.3, C3.6 | For quantitative table questions, route through a specialized table QA model (TAPAS, TAPEX) that selects cells and computes aggregations directly — avoids LLM math errors entirely. |
+| **[S17. Structured output with citation enforcement](#s17-structured-output-with-citation-enforcement)** **[T]** | C4.1, C4.4, C4.5, C4.7, C4.8 | Pydantic schema (`Answer → Claims → Citations`) enforced via structured output (BAML, Instructor, or provider-native). Every claim requires citations with UUIDs (hallucination canaries), `publication_date` (temporal attribution), and `conflicts_with` (conflict surfacing) **[T]**. |
+| **[S18. Table QA models](#s18-table-qa-models)** | C4.6, C4.3, C3.6 | For quantitative table questions, route through a specialized table QA model (TAPAS, TAPEX) that selects cells and computes aggregations directly — avoids LLM math errors entirely. |
 
 ### Verification-Time Solutions
 
 | Solution | Addresses | Description |
 |----------|-----------|-------------|
-| **[[#S19. Faithfulness Verification\|S19. Faithfulness verification]]** **[T]** | C4.1, C4.3, C4.6 | Separate LLM call or NLI model checks each claim against its cited chunk. Includes numeric verification via regex for quantitative claims. Measures and improves groundedness **[T]**. |
-| **[[#S20. Offline Evaluation\|S20. Offline evaluation (golden dataset)]]** **[T]** | C4.2, C4.5 | Curated Q&A pairs with known correct answers. Run automated retrieval + generation metrics (RAGAS/DeepEval) on every prompt/model change. Measures groundedness **[T]**. Catches regression. |
-| **[[#S21. Production Feedback Loop\|S21. Production feedback loop]]** | All | User-flagged incorrect answers added to golden dataset. Highest-signal evaluation data — real queries where real users identified errors. |
+| **[S19. Faithfulness verification](#s19-faithfulness-verification)** **[T]** | C4.1, C4.3, C4.6 | Separate LLM call or NLI model checks each claim against its cited chunk. Includes numeric verification via regex for quantitative claims. Measures and improves groundedness **[T]**. |
+| **[S20. Offline evaluation (golden dataset)](#s20-offline-evaluation)** **[T]** | C4.2, C4.5 | Curated Q&A pairs with known correct answers. Run automated retrieval + generation metrics (RAGAS/DeepEval) on every prompt/model change. Measures groundedness **[T]**. Catches regression. |
+| **[S21. Production feedback loop](#s21-production-feedback-loop)** | All | User-flagged incorrect answers added to golden dataset. Highest-signal evaluation data — real queries where real users identified errors. |
 
 ---
 
@@ -240,33 +240,33 @@ Every root cause maps to at least one solution. Every solution maps to at least 
 
 | Cause | Solutions |
 |-------|-----------|
-| C1.1 Chunking breaks cross-references | [[#S3. Recursive Paragraph-Aware Chunking\|S3]], [[#S5. Parent Section Linking\|S5]] |
-| C1.2 Chunks lose document context | [[#S4. Contextual Enrichment\|S4]] |
-| C1.3 Single query can't capture multi-faceted questions | [[#S13. Query Decomposition\|S13]] |
-| C1.4 Cross-document synthesis required | [[#S6. Document Summaries\|S6]], [[#S13. Query Decomposition\|S13]], [[#S15. Agentic Retry Loop\|S15]] |
-| C1.5 Implicit references become meaningless | [[#S3. Recursive Paragraph-Aware Chunking\|S3]], [[#S4. Contextual Enrichment\|S4]] |
-| C1.6 Vocabulary mismatch | [[#S4. Contextual Enrichment\|S4]], [[#S12. Hybrid Search\|S12]], [[#S14. Cross-Encoder Reranking\|S14]] |
-| C2.1 Cosine similarity ignores time | [[#S7. Metadata Extraction\|S7]], [[#S11. Metadata Pre-Filtering\|S11]] |
-| C2.2 Temporal expressions unresolved | [[#S10. Temporal Resolution\|S10]] |
-| C2.3 No metadata filtering | [[#S7. Metadata Extraction\|S7]], [[#S11. Metadata Pre-Filtering\|S11]] |
-| C2.4 No recency preference | [[#S7. Metadata Extraction\|S7]], [[#S11. Metadata Pre-Filtering\|S11]] |
-| C2.5 Entity ambiguity | [[#S11. Metadata Pre-Filtering\|S11]], [[#S14. Cross-Encoder Reranking\|S14]] |
-| C2.6 Negation blindness | [[#S12. Hybrid Search\|S12]], [[#S14. Cross-Encoder Reranking\|S14]] |
-| C2.7 Quantitative reasoning impossible via embeddings | *(Known gap — requires structured metadata queries; see [[#Known Gaps]])* |
-| C3.1 Naive extraction interleaves columns | [[#S1. Layout-Aware Parsing\|S1]] |
-| C3.2 Table structure destroyed | [[#S1. Layout-Aware Parsing\|S1]], [[#S2. Dual Table Representation\|S2]] |
-| C3.3 Complex table structures break extraction | [[#S1. Layout-Aware Parsing\|S1]], [[#S9. Vision LLM Fallback\|S9]] |
-| C3.4 Figure/chart data not in text | [[#S9. Vision LLM Fallback\|S9]] |
-| C3.5 Footnotes disconnected from tables | [[#S8. Table Footnote Association\|S8]] |
-| C3.6 Tables embed poorly | [[#S2. Dual Table Representation\|S2]], [[#S16. Chunk-Type Boosting\|S16]], [[#S18. Table QA Models\|S18]] |
-| C4.1 No grounding mechanism | [[#S17. Structured Output with Citation Enforcement\|S17]], [[#S19. Faithfulness Verification\|S19]] |
-| C4.2 Retrieval failure upstream | [[#S15. Agentic Retry Loop\|S15]], [[#S20. Offline Evaluation\|S20]] |
-| C4.3 Multi-chunk synthesis errors | [[#S19. Faithfulness Verification\|S19]], [[#S18. Table QA Models\|S18]] |
-| C4.4 Temporal blending | [[#S17. Structured Output with Citation Enforcement\|S17]] (`publication_date` field) |
-| C4.5 Overconfidence on partial information | [[#S6. Document Summaries\|S6]], [[#S15. Agentic Retry Loop\|S15]], [[#S17. Structured Output with Citation Enforcement\|S17]], [[#S20. Offline Evaluation\|S20]] |
-| C4.6 Numeric hallucination | [[#S19. Faithfulness Verification\|S19]], [[#S18. Table QA Models\|S18]] |
-| C4.7 Conflicting sources | [[#S17. Structured Output with Citation Enforcement\|S17]] (`conflicts_with` field) |
-| C4.8 No citation enforcement | [[#S17. Structured Output with Citation Enforcement\|S17]] |
+| C1.1 Chunking breaks cross-references | [S3](#s3-recursive-paragraph-aware-chunking), [S5](#s5-parent-section-linking) |
+| C1.2 Chunks lose document context | [S4](#s4-contextual-enrichment) |
+| C1.3 Single query can't capture multi-faceted questions | [S13](#s13-query-decomposition) |
+| C1.4 Cross-document synthesis required | [S6](#s6-document-summaries), [S13](#s13-query-decomposition), [S15](#s15-agentic-retry-loop) |
+| C1.5 Implicit references become meaningless | [S3](#s3-recursive-paragraph-aware-chunking), [S4](#s4-contextual-enrichment) |
+| C1.6 Vocabulary mismatch | [S4](#s4-contextual-enrichment), [S12](#s12-hybrid-search), [S14](#s14-cross-encoder-reranking) |
+| C2.1 Cosine similarity ignores time | [S7](#s7-metadata-extraction), [S11](#s11-metadata-pre-filtering) |
+| C2.2 Temporal expressions unresolved | [S10](#s10-temporal-resolution) |
+| C2.3 No metadata filtering | [S7](#s7-metadata-extraction), [S11](#s11-metadata-pre-filtering) |
+| C2.4 No recency preference | [S7](#s7-metadata-extraction), [S11](#s11-metadata-pre-filtering) |
+| C2.5 Entity ambiguity | [S11](#s11-metadata-pre-filtering), [S14](#s14-cross-encoder-reranking) |
+| C2.6 Negation blindness | [S12](#s12-hybrid-search), [S14](#s14-cross-encoder-reranking) |
+| C2.7 Quantitative reasoning impossible via embeddings | *(Known gap — requires structured metadata queries; see [Known Gaps](#known-gaps))* |
+| C3.1 Naive extraction interleaves columns | [S1](#s1-layout-aware-parsing) |
+| C3.2 Table structure destroyed | [S1](#s1-layout-aware-parsing), [S2](#s2-dual-table-representation) |
+| C3.3 Complex table structures break extraction | [S1](#s1-layout-aware-parsing), [S9](#s9-vision-llm-fallback) |
+| C3.4 Figure/chart data not in text | [S9](#s9-vision-llm-fallback) |
+| C3.5 Footnotes disconnected from tables | [S8](#s8-table-footnote-association) |
+| C3.6 Tables embed poorly | [S2](#s2-dual-table-representation), [S16](#s16-chunk-type-boosting), [S18](#s18-table-qa-models) |
+| C4.1 No grounding mechanism | [S17](#s17-structured-output-with-citation-enforcement), [S19](#s19-faithfulness-verification) |
+| C4.2 Retrieval failure upstream | [S15](#s15-agentic-retry-loop), [S20](#s20-offline-evaluation) |
+| C4.3 Multi-chunk synthesis errors | [S19](#s19-faithfulness-verification), [S18](#s18-table-qa-models) |
+| C4.4 Temporal blending | [S17](#s17-structured-output-with-citation-enforcement) (`publication_date` field) |
+| C4.5 Overconfidence on partial information | [S6](#s6-document-summaries), [S15](#s15-agentic-retry-loop), [S17](#s17-structured-output-with-citation-enforcement), [S20](#s20-offline-evaluation) |
+| C4.6 Numeric hallucination | [S19](#s19-faithfulness-verification), [S18](#s18-table-qa-models) |
+| C4.7 Conflicting sources | [S17](#s17-structured-output-with-citation-enforcement) (`conflicts_with` field) |
+| C4.8 No citation enforcement | [S17](#s17-structured-output-with-citation-enforcement) |
 
 ---
 
@@ -276,7 +276,7 @@ Every root cause maps to at least one solution. Every solution maps to at least 
 
 #### S1. Layout-Aware Parsing
 **Addresses:** C3.1 (column interleaving), C3.2 (table destruction), C3.3 (complex table structures)
-[[#Solutions|↑ back to solutions]]
+[↑ back to solutions](#solutions)
 
 Standard text extractors (PyPDF2, pdfminer) read characters left-to-right, top-to-bottom. Multi-column layouts get interleaved and tables become number salad. A layout-aware parser detects page structure — columns, headers, footers, tables, figures — and linearizes text into proper reading order before extraction.
 
@@ -297,13 +297,13 @@ Standard text extractors (PyPDF2, pdfminer) read characters left-to-right, top-t
 - **LlamaParse:** Fastest option (~6s/doc), API-based (no self-hosting). Good accuracy (~95%), but proprietary and adds external dependency. Worth evaluating if processing speed is critical.
 
 **Drawbacks:**
-- No parser is 100% accurate. Need a fallback for garbled extractions — flagging low-confidence parses for human review or re-processing with a vision LLM ([[#S9. Vision LLM Fallback|S9]]).
+- No parser is 100% accurate. Need a fallback for garbled extractions — flagging low-confidence parses for human review or re-processing with a vision LLM ([S9](#s9-vision-llm-fallback)).
 
 ---
 
 #### S2. Dual Table Representation
 **Addresses:** C3.2 (table structure destroyed), C3.6 (tables embed poorly)
-[[#Solutions|↑ back to solutions]]
+[↑ back to solutions](#solutions)
 
 Even when correctly extracted, tabular data ("EU | 31% | 54% | 2024") doesn't produce meaningful embeddings. Semantic search can't match "what was the EU adoption rate?" to a row of numbers.
 
@@ -316,19 +316,19 @@ Store each table in two forms:
 
 **Drawbacks:**
 - NL summaries require an LLM call per table. **Mitigation:** batch with cheap model (GPT-4o-mini, Claude Haiku). A market research report might have 5-20 tables, so 50K docs → 250K-1M table summary calls — significant but one-time.
-- Dual representation doubles chunk count for table-heavy documents, increasing storage and retrieval noise. **Mitigation:** chunk-type filtering ([[#S16. Chunk-Type Boosting|S16]]) prevents table markdown chunks from crowding out text chunks.
+- Dual representation doubles chunk count for table-heavy documents, increasing storage and retrieval noise. **Mitigation:** chunk-type filtering ([S16](#s16-chunk-type-boosting)) prevents table markdown chunks from crowding out text chunks.
 
 ---
 
 #### S3. Recursive Paragraph-Aware Chunking
 **Addresses:** C1.1 (chunking breaks cross-references), C1.5 (implicit references)
-[[#Solutions|↑ back to solutions]]
+[↑ back to solutions](#solutions)
 
 Split at paragraph and sentence boundaries, respecting document structure. Target 512-1024 tokens per chunk. Section titles preserved as metadata.
 
 Recursive 512-token splitting achieved **69% accuracy** in a benchmark across 50 academic papers, outperforming semantic chunking at 54% [^chunking-benchmark] ("recursive splitting at paragraph boundaries maintains topical coherence while keeping chunks small enough for precise retrieval").
 
-**On overlapping windows:** A common recommendation is 10-20% overlap between adjacent chunks to preserve cross-boundary references. However, Chroma's chunking evaluation found that removing overlap consistently *improved* precision and IoU scores — 400-token chunks went from 3.3% to 3.6% precision without overlap [^chroma-chunking] ("reducing chunk overlap improves IoU scores, as this metric penalizes redundant information"). Overlap increases index size and retrieval noise without clear recall gains. Given that [[#S4. Contextual Enrichment|S4]] and [[#S5. Parent Section Linking|S5]] already solve the context-loss problem more effectively, overlap is not recommended as a default — start without it, add only if evaluation shows boundary-splitting issues.
+**On overlapping windows:** A common recommendation is 10-20% overlap between adjacent chunks to preserve cross-boundary references. However, Chroma's chunking evaluation found that removing overlap consistently *improved* precision and IoU scores — 400-token chunks went from 3.3% to 3.6% precision without overlap [^chroma-chunking] ("reducing chunk overlap improves IoU scores, as this metric penalizes redundant information"). Overlap increases index size and retrieval noise without clear recall gains. Given that [S4](#s4-contextual-enrichment) and [S5](#s5-parent-section-linking) already solve the context-loss problem more effectively, overlap is not recommended as a default — start without it, add only if evaluation shows boundary-splitting issues.
 
 **Alternatives considered:**
 
@@ -339,7 +339,7 @@ Recursive 512-token splitting achieved **69% accuracy** in a benchmark across 50
 
 #### S4. Contextual Enrichment
 **Addresses:** C1.2 (chunks lose context), C1.5 (implicit references), C1.6 (vocabulary mismatch)
-[[#Solutions|↑ back to solutions]]
+[↑ back to solutions](#solutions)
 
 Before embedding, prepend each chunk with contextual information so that the embedding captures *what this chunk is about* rather than just its isolated text. A chunk saying "revenue increased 15%" is ambiguous — prepending "From Acme Corp Q3 2024 Annual Report, Revenue Analysis section" makes the embedding specific and retrievable.
 
@@ -349,7 +349,7 @@ Anthropic's contextual retrieval approach reduces retrieval failures by up to **
 
 | Tier | When | Method | Cost |
 |------|------|--------|------|
-| 1. Algorithmic | Always | Prepend `doc_title + section_heading` from parsed document structure (already extracted in [[#S1. Layout-Aware Parsing\|S1]]). Pure string concatenation. | Free |
+| 1. Algorithmic | Always | Prepend `doc_title + section_heading` from parsed document structure (already extracted in [S1](#s1-layout-aware-parsing)). Pure string concatenation. | Free |
 | 2. LLM-generated | When headers are uninformative ("Table 4", "Section 3.2", "Appendix", or missing entirely) | LLM generates a context sentence: "This table shows sustainable packaging adoption rates by country in the EU, 2022-2024." | ~$0.01/chunk |
 
 Tier 1 alone solves most of the ambiguity — most market research reports have descriptive section titles. Tier 2 is only needed when the header doesn't convey meaning. A simple heuristic or lightweight classifier can decide whether a header is informative: e.g. flag headers shorter than 4 words, generic patterns ("Table N", "Section N.N", "Appendix"), or chunks with no parent header at all. This could reduce LLM calls from ~1M to ~100-200K (only the ambiguous chunks).
@@ -367,7 +367,7 @@ Tier 1 alone solves most of the ambiguity — most market research reports have 
 
 #### S5. Parent Section Linking
 **Addresses:** C1.1 (chunking breaks cross-references)
-[[#Solutions|↑ back to solutions]]
+[↑ back to solutions](#solutions)
 
 Each chunk stores a `parent_section_id`. When a chunk is retrieved, the full parent section is pulled for the LLM — retrieve small for precision, generate with large for context.
 
@@ -382,15 +382,15 @@ This directly addresses the page 2/page 5 problem: if the conclusion and support
 | Chunk only | 512-1024 tokens | Highest retrieval precision, but may miss surrounding context |
 | **Parent section** (chosen) | ~2000-4000 tokens | Good balance — captures most intra-section cross-references |
 | Sibling chunks (N-1, N, N+1) | ~1500-3000 tokens | Cheaper than parent expansion, catches immediate boundary context. LlamaIndex's `SentenceWindowNodeParser` does this. |
-| Chunk + document summary | ~1000-2000 tokens | Specific chunk for detail + summary ([[#S6. Document Summaries\|S6]]) for big-picture context. Cheap and effective. |
+| Chunk + document summary | ~1000-2000 tokens | Specific chunk for detail + summary ([S6](#s6-document-summaries)) for big-picture context. Cheap and effective. |
 | Full document | ~10K-25K tokens | All context available but diluted with irrelevance. Expensive. Only viable if retrieving from 1-2 documents. |
 
 **Other context-recovery approaches:**
 
-- **Multi-hop retrieval:** If chunk A references "as shown in Section 3", the agentic retry loop ([[#S15. Agentic Retry Loop\|S15]]) detects the missing reference and retrieves Section 3 in a follow-up query. Handles cross-section references without expanding context upfront.
+- **Multi-hop retrieval:** If chunk A references "as shown in Section 3", the agentic retry loop ([S15](#s15-agentic-retry-loop)) detects the missing reference and retrieves Section 3 in a follow-up query. Handles cross-section references without expanding context upfront.
 - **Hierarchical retrieval:** Retrieve simultaneously at chunk-level, section-level, and summary-level. Merge and deduplicate before passing to generation. Gives the LLM context at every granularity, but increases retrieval cost.
 
-**Recommended combination:** Parent section expansion as the default, supplemented by document summaries ([[#S6. Document Summaries\|S6]]) for broad context and the retry loop ([[#S15. Agentic Retry Loop\|S15]]) for cross-section references that parent expansion misses.
+**Recommended combination:** Parent section expansion as the default, supplemented by document summaries ([S6](#s6-document-summaries)) for broad context and the retry loop ([S15](#s15-agentic-retry-loop)) for cross-section references that parent expansion misses.
 
 **Drawbacks:**
 - Assumes sections are meaningful units. If a document has no clear section structure (some PDFs are flowing text), fallback to sibling chunk expansion (N-1, N, N+1).
@@ -400,7 +400,7 @@ This directly addresses the page 2/page 5 problem: if the conclusion and support
 
 #### S6. Document Summaries
 **Addresses:** C1.4 (cross-document synthesis), C4.5 (overconfidence on partial information)
-[[#Solutions|↑ back to solutions]]
+[↑ back to solutions](#solutions)
 
 Each document gets a generated summary stored as a separate searchable chunk. Captures the overall narrative, cross-section relationships, and key findings that individual chunks miss.
 
@@ -418,9 +418,9 @@ When a user asks a broad question ("What are the trends in sustainable packaging
 
 #### S7. Metadata Extraction
 **Addresses:** C2.1 (cosine similarity ignores time), C2.3 (no metadata filtering), C2.4 (no recency preference)
-[[#Solutions|↑ back to solutions]]
+[↑ back to solutions](#solutions)
 
-At indexing time, extract and store structured metadata fields: `publication_date`, `region`, `document_type`, `report_series`, `language`. These enable pre-filtering at retrieval time ([[#S11. Metadata Pre-Filtering|S11]]).
+At indexing time, extract and store structured metadata fields: `publication_date`, `region`, `document_type`, `report_series`, `language`. These enable pre-filtering at retrieval time ([S11](#s11-metadata-pre-filtering)).
 
 For PDFs, dates can often be extracted from document properties, headers, or title pages. For ambiguous cases, a lightweight LLM call can extract the publication date from the first page.
 
@@ -431,7 +431,7 @@ For PDFs, dates can often be extracted from document properties, headers, or tit
 
 #### S8. Table Footnote Association
 **Addresses:** C3.5 (footnotes disconnected from tables)
-[[#Solutions|↑ back to solutions]]
+[↑ back to solutions](#solutions)
 
 During parsing, link footnotes and annotations to their parent table. Store them together as a single unit. "* Adjusted for inflation" should travel with the table it annotates — without it, the numbers are potentially misleading.
 
@@ -441,7 +441,7 @@ Layout-aware parsers like Docling can detect footnote regions. The association l
 
 #### S9. Vision LLM Fallback
 **Addresses:** C3.4 (figure/chart data not in text), C3.3 (complex table structures)
-[[#Solutions|↑ back to solutions]]
+[↑ back to solutions](#solutions)
 
 For charts, figures, and complex tables where text extraction fails or produces low-confidence output, pass the page image through a vision LLM (GPT-4o, Gemini 2.5 Pro) to extract data.
 
@@ -468,7 +468,7 @@ Recent research supports this approach:
 
 #### S10. Temporal Resolution
 **Addresses:** C2.2 (temporal expressions unresolved)
-[[#Solutions|↑ back to solutions]]
+[↑ back to solutions](#solutions)
 
 Before retrieval, resolve temporal expressions in the query and convert them to absolute date ranges:
 
@@ -487,20 +487,20 @@ Before retrieval, resolve temporal expressions in the query and convert them to 
 
 #### S11. Metadata Pre-Filtering
 **Addresses:** C2.1 (cosine similarity ignores time), C2.3 (no metadata filtering), C2.4 (no recency preference), C2.5 (entity ambiguity)
-[[#Solutions|↑ back to solutions]]
+[↑ back to solutions](#solutions)
 
 Apply resolved date ranges, regions, and document types as **pre-filters** at the vector DB level. The 2018 document is never even considered as a candidate.
 
 **Why pre-filter, not post-filter?** Post-filtering retrieves top-100 by similarity, then removes old documents — potentially discarding most results and missing relevant newer documents ranked 101+. Pre-filtering ensures all candidates meet constraints before ranking begins. For a corpus spanning decades of reports, this distinction is critical.
 
 **Drawbacks:**
-- Pre-filtering assumes metadata is clean and complete. If `publication_date` is missing or wrong, those documents become invisible to temporal queries. **Mitigation:** metadata quality pipeline ([[#S7. Metadata Extraction|S7]]) that validates completeness at indexing time.
+- Pre-filtering assumes metadata is clean and complete. If `publication_date` is missing or wrong, those documents become invisible to temporal queries. **Mitigation:** metadata quality pipeline ([S7](#s7-metadata-extraction)) that validates completeness at indexing time.
 
 ---
 
 #### S12. Hybrid Search
 **Addresses:** C1.6 (vocabulary mismatch), C2.6 (negation blindness)
-[[#Solutions|↑ back to solutions]]
+[↑ back to solutions](#solutions)
 
 Run two parallel searches per (sub-)query:
 - **Dense retrieval:** Embed the query, find semantically similar chunks. Catches paraphrases: "sustainable packaging" matches "eco-friendly containers".
@@ -523,7 +523,7 @@ Hybrid retrieval consistently outperforms vector-only by **15-30%** [^hybrid-sup
 
 #### S13. Query Decomposition
 **Addresses:** C1.3 (single query can't capture multi-faceted questions), C1.4 (cross-document synthesis)
-[[#Solutions|↑ back to solutions]]
+[↑ back to solutions](#solutions)
 
 An LLM call classifies query complexity and decomposes complex queries:
 
@@ -533,7 +533,7 @@ An LLM call classifies query complexity and decomposes complex queries:
 2. "Gen Z sustainable packaging perception US"
 3. "sustainable packaging trends comparison EU vs US"
 
-(The temporal filter was already extracted in [[#S10. Temporal Resolution|S10]] and applies to all sub-queries.)
+(The temporal filter was already extracted in [S10](#s10-temporal-resolution) and applies to all sub-queries.)
 
 **Why decompose?** A single embedding of the full complex query is a blurry average of all its aspects. Multi-query approaches outperform single-query by **14.46%** on FreshQA [^dmqr-rag] ("DMQR-RAG generates diverse query reformulations to overcome vocabulary mismatch and capture different aspects of complex information needs").
 
@@ -546,25 +546,25 @@ DMQR-RAG proposes four rewriting strategies at different information levels:
 | **Paraphrase**   | Rephrase the full question               | "How do younger consumers in Europe and America view eco-friendly packaging?" |
 | **Expansion**    | Add context and detail                   | "Gen Z consumer attitudes toward sustainable packaging materials in EU member states compared to US markets, trends 2024-2026" |
 
-Each strategy retrieves different documents; results are fused via RRF ([[#S12. Hybrid Search|S12]]). The paper also introduces an **adaptive strategy selector** — a lightweight classifier that picks the best rewrite strategy per query, minimizing unnecessary retrieval passes while maintaining accuracy. In production, not every query needs all four rewrites — the selector reduces unnecessary retrieval passes.
+Each strategy retrieves different documents; results are fused via RRF ([S12](#s12-hybrid-search)). The paper also introduces an **adaptive strategy selector** — a lightweight classifier that picks the best rewrite strategy per query, minimizing unnecessary retrieval passes while maintaining accuracy. In production, not every query needs all four rewrites — the selector reduces unnecessary retrieval passes.
 
 **Why classify instead of always decomposing?** Simple queries don't benefit from decomposition — it adds multiple retrieval passes with no accuracy gain. Classification and decomposition happen in one LLM call, so there is no extra cost for simple queries.
 
 **Alternatives considered:**
 
 - **Router-based approach (separate simple/complex paths):** A dedicated router instead of inline classification. Reduces latency for simple queries by skipping the decomposition step entirely [^nvidia-agentic] ("60-80% of production queries are simple lookups that benefit from a fast path"). Not chosen because classification + decomposition already happen in one LLM call. Becomes worthwhile at high volume where a fine-tuned small classifier could save LLM costs.
-- **HyDE (Hypothetical Document Embeddings):** Generate a hypothetical answer, embed that instead of the query. Bridges vocabulary mismatch. But DMQR-RAG outperformed HyDE by 14.46% on FreshQA [^dmqr-rag]. Not chosen as default, but useful as a fallback within the retry loop ([[#S15. Agentic Retry Loop|S15]]) when standard retrieval fails.
+- **HyDE (Hypothetical Document Embeddings):** Generate a hypothetical answer, embed that instead of the query. Bridges vocabulary mismatch. But DMQR-RAG outperformed HyDE by 14.46% on FreshQA [^dmqr-rag]. Not chosen as default, but useful as a fallback within the retry loop ([S15](#s15-agentic-retry-loop)) when standard retrieval fails.
 - **RAG-Fusion:** Similar multi-query idea but generates paraphrases only. DMQR-RAG's diverse strategies (keyword, entity, paraphrase, expansion) retrieve a broader set of documents and outperform RAG-Fusion [^dmqr-rag].
 
 ---
 
 #### S14. Cross-Encoder Reranking
 **Addresses:** C1.6 (vocabulary mismatch), C2.5 (entity ambiguity), C2.6 (negation blindness)
-[[#Solutions|↑ back to solutions]]
+[↑ back to solutions](#solutions)
 
 A cross-encoder model takes the top-50 candidates from hybrid search and re-scores them to produce the final top-5-10.
 
-**How a cross-encoder works:** Unlike bi-encoders (used in [[#S12. Hybrid Search|S12]]) which embed query and document separately and compare with cosine similarity, a cross-encoder feeds both as a single concatenated input through a transformer:
+**How a cross-encoder works:** Unlike bi-encoders (used in [S12](#s12-hybrid-search)) which embed query and document separately and compare with cosine similarity, a cross-encoder feeds both as a single concatenated input through a transformer:
 
 ```
 [CLS] query tokens [SEP] document tokens [SEP] → relevance score (0-1)
@@ -591,7 +591,7 @@ Cross-encoder reranking adds **+33-40% accuracy** for ~120ms latency [^reranking
 
 #### S15. Agentic Retry Loop
 **Addresses:** C1.4 (cross-document synthesis), C4.2 (retrieval failure upstream), C4.5 (overconfidence on partial information)
-[[#Solutions|↑ back to solutions]]
+[↑ back to solutions](#solutions)
 
 After reranking, the system evaluates whether retrieved context is sufficient **[T]**:
 
@@ -617,7 +617,7 @@ If **INSUFFICIENT** → the LLM generates a rewritten query targeting the missin
 
 #### S16. Chunk-Type Boosting
 **Addresses:** C3.6 (tables embed poorly)
-[[#Solutions|↑ back to solutions]]
+[↑ back to solutions](#solutions)
 
 Each chunk is tagged with a `chunk_type` metadata field: `text`, `table`, or `summary`. When the query asks for quantitative data ("what percentage...", "how many...", "compare the numbers..."), the retriever boosts table-type chunks in scoring.
 
@@ -625,11 +625,11 @@ Each chunk is tagged with a `chunk_type` metadata field: `text`, `table`, or `su
 
 LangChain's benchmark on table-heavy documents found that small chunks (50 tokens) achieved only **30% accuracy** on table questions, and that "table-focused chunks competed with text body content during retrieval despite containing the most valuable information" [^langchain-tables]. Their recommended solution: **ensemble retrieval that prioritizes table chunks** — exactly what chunk-type boosting does.
 
-Implementation: at query time, classify the query as quantitative or qualitative (simple keyword/regex: "how many", "percentage", "compare", numbers in query). For quantitative queries, apply a **1.3-1.5x score multiplier** to table-type chunks before final ranking. This is a lightweight metadata filter applied after [[#S14. Cross-Encoder Reranking|S14]], not a separate retrieval pass.
+Implementation: at query time, classify the query as quantitative or qualitative (simple keyword/regex: "how many", "percentage", "compare", numbers in query). For quantitative queries, apply a **1.3-1.5x score multiplier** to table-type chunks before final ranking. This is a lightweight metadata filter applied after [S14](#s14-cross-encoder-reranking), not a separate retrieval pass.
 
 **Alternatives considered:**
 
-- **Table summary indexing:** Generate an LLM summary of each table, embed the summary instead of (or alongside) the raw table. Retrieval matches on the summary, then the raw table is passed to generation via a multi-vector retriever [^langchain-tables]. More accurate but adds LLM cost at ingestion (~1 call per table). Worth combining with boosting — S4 ([[#S4. Contextual Enrichment|contextual enrichment]]) already adds context to table chunks, which serves a similar purpose.
+- **Table summary indexing:** Generate an LLM summary of each table, embed the summary instead of (or alongside) the raw table. Retrieval matches on the summary, then the raw table is passed to generation via a multi-vector retriever [^langchain-tables]. More accurate but adds LLM cost at ingestion (~1 call per table). Worth combining with boosting — S4 ([contextual enrichment](#s4-contextual-enrichment)) already adds context to table chunks, which serves a similar purpose.
 - **Separate table index:** Maintain a dedicated vector index for tables only, query both indexes in parallel, merge results. Guarantees table representation in results but adds infrastructure complexity. Overkill unless the corpus is heavily table-dominated.
 - **Table-specific embedding models:** Fine-tune or select embedding models optimized for tabular data (e.g., stella_en_400M_v5 ranked best on TARGET benchmark [^target-benchmark]). High effort, but worth evaluating if table retrieval remains a bottleneck after boosting.
 
@@ -639,7 +639,7 @@ Implementation: at query time, classify the query as quantitative or qualitative
 
 #### S17. Structured Output with Citation Enforcement
 **Addresses:** C4.1 (no grounding mechanism), C4.4 (temporal blending), C4.5 (overconfidence on partial information), C4.7 (conflicting sources), C4.8 (no citation enforcement)
-[[#Solutions|↑ back to solutions]]
+[↑ back to solutions](#solutions)
 
 Instead of asking the LLM to "please cite your sources" in a prompt (unreliable), the generation step enforces a schema that **structurally requires** citations, temporal attribution, and conflict surfacing **[T]**:
 
@@ -695,7 +695,7 @@ class Answer(BaseModel):
 | **Provider-native** (OpenAI `response_format`, Anthropic tool use) | API-level enforcement. OpenAI guarantees valid JSON matching the schema. Anthropic uses tool use with Pydantic schemas. | Vendor-specific. Not all providers support it. Schema complexity limits vary. |
 | **Retry-based** (Instructor) | Validates output with Pydantic. On failure, sends the validation error back to the LLM and retries (up to N times). | Each retry costs an extra LLM call. Still no guarantee after max retries. But simple to implement and works across providers. |
 
-For this architecture, **BAML or provider-native** structured output is recommended. BAML's model-agnostic approach avoids vendor lock-in (important given the multi-provider strategy in [[#Technology Choices]]), and its error-tolerant parser handles the edge cases (markdown mixed into JSON, missing closing brackets) that real-world LLM outputs produce. Constrained decoding is strongest for self-hosted models. Instructor is the simplest starting point.
+For this architecture, **BAML or provider-native** structured output is recommended. BAML's model-agnostic approach avoids vendor lock-in (important given the multi-provider strategy in [Technology Choices](#technology-choices)), and its error-tolerant parser handles the edge cases (markdown mixed into JSON, missing closing brackets) that real-world LLM outputs produce. Constrained decoding is strongest for self-hosted models. Instructor is the simplest starting point.
 
 **Alternatives considered:**
 
@@ -707,12 +707,12 @@ For this architecture, **BAML or provider-native** structured output is recommen
 
 #### S18. Table QA Models
 **Addresses:** C4.6 (numeric hallucination), C4.3 (multi-chunk synthesis errors), C3.6 (tables embed poorly)
-[[#Solutions|↑ back to solutions]]
+[↑ back to solutions](#solutions)
 
 For quantitative table questions ("What was the average EU adoption rate from 2022-2024?", "Which region had the highest growth?"), route through a specialized table QA model instead of asking the general-purpose LLM to interpret raw markdown tables.
 
 **How it works:**
-1. Retrieval finds the right table (via NL summary from [[#S2. Dual Table Representation|S2]])
+1. Retrieval finds the right table (via NL summary from [S2](#s2-dual-table-representation))
 2. Query classifier detects a quantitative/aggregation question
 3. Instead of passing raw markdown to the LLM, pass the structured table + question to a table QA model
 4. The model directly selects relevant cells and computes the aggregation (SUM, AVG, COUNT, MAX)
@@ -746,17 +746,17 @@ For quantitative table questions ("What was the average EU adoption rate from 20
 
 #### S19. Faithfulness Verification
 **Addresses:** C4.1 (no grounding mechanism), C4.3 (multi-chunk synthesis errors), C4.6 (numeric hallucination)
-[[#Solutions|↑ back to solutions]]
+[↑ back to solutions](#solutions)
 
 A separate LLM call (or NLI model) checks each claim against its cited chunk: "Is this claim entailed by the cited source?"
 
 **Why a separate step?** Generation and verification are different objectives. The generation LLM is optimized for helpfulness, which biases it toward gap-filling when context is incomplete. A separate verification call optimizes purely for factual checking. This catches the failure mode where the model cites a source but misrepresents its content — which citation prompting alone does not prevent.
 
 **How it works:**
-1. Parse the structured output from [[#S17. Structured Output with Citation Enforcement|S17]] into individual `Claim → Citation` pairs
+1. Parse the structured output from [S17](#s17-structured-output-with-citation-enforcement) into individual `Claim → Citation` pairs
 2. For each pair, send the claim text and the cited chunk to an NLI model or separate LLM call with the prompt: "Does the source text entail this claim?"
 3. Flag claims where the verdict is `CONTRADICTION` or `NOT_ENTAILED`
-4. Return flagged claims to the user with the source text for manual review, or trigger the [[#S15. Agentic Retry Loop|S15]] retry
+4. Return flagged claims to the user with the source text for manual review, or trigger the [S15](#s15-agentic-retry-loop) retry
 
 **Approaches:**
 
@@ -788,7 +788,7 @@ A separate LLM call (or NLI model) checks each claim against its cited chunk: "I
 
 #### S20. Offline Evaluation
 **Addresses:** C4.2 (retrieval failure upstream), C4.5 (overconfidence on partial information)
-[[#Solutions|↑ back to solutions]]
+[↑ back to solutions](#solutions)
 
 Measures and improves groundedness **[T]** through:
 
@@ -810,7 +810,7 @@ Measures and improves groundedness **[T]** through:
 
 #### S21. Production Feedback Loop
 **Addresses:** All causes (systemic improvement)
-[[#Solutions|↑ back to solutions]]
+[↑ back to solutions](#solutions)
 
 User-flagged incorrect answers are added to the golden dataset. These provide the highest-signal evaluation data — real queries where real users identified errors.
 
@@ -822,27 +822,27 @@ User-flagged incorrect answers are added to the golden dataset. These provide th
 
 | Component | Choice | Rationale | Alternatives |
 |-----------|--------|-----------|-------------|
-| Orchestration | LangChain / LangGraph | Task prefers LangChain **[T]**. LangGraph handles stateful agent workflows ([[#S15. Agentic Retry Loop\|S15]]). LangSmith for tracing. | **LlamaIndex** — better ingestion [^langchain-vs-llamaindex]. **Plain Python** — simpler. **Haystack** — lowest token usage (~1.57k vs LangChain ~2.40k [^langchain-vs-llamaindex]). |
+| Orchestration | LangChain / LangGraph | Task prefers LangChain **[T]**. LangGraph handles stateful agent workflows ([S15](#s15-agentic-retry-loop)). LangSmith for tracing. | **LlamaIndex** — better ingestion [^langchain-vs-llamaindex]. **Plain Python** — simpler. **Haystack** — lowest token usage (~1.57k vs LangChain ~2.40k [^langchain-vs-llamaindex]). |
 | Vector Store | Qdrant | Native hybrid search (dense + BM25), metadata filtering, open-source, Rust performance. | **Elasticsearch** — industry-standard, may already be in stack. **pgvector** — simplest, sufficient at 50K docs [^vector-db-comparison]. **Pinecone** — managed but vendor lock-in. |
 | Embeddings | text-embedding-3-large | Strong MTEB performance, multilingual (200+ countries). Matryoshka dimension reduction (3072→1024) cuts storage ~3x. | **voyage-3** — stronger on domain text. **BGE-M3/E5** — self-hosted, no API costs. Chunking matters more than embedding choice [^chunking-benchmark]. |
 | Sparse Search | BM25 (via Qdrant or ES) | Keyword precision, battle-tested. | **SPLADE** — better on some benchmarks, more complex to deploy. |
 | Reranker | Cohere Rerank or bge-reranker-v2 | +33-40% accuracy [^reranking-study]. | **ColBERTv2** — lower latency (~58ms [^colbert-sease]), larger index. |
 | Document Parser | Docling (IBM) | 97.9% complex tables [^docling-benchmark], open-source. | **Unstructured.io** — 75% complex tables. **LlamaParse** — fastest. |
 | LLM | GPT-4o / Claude (multi-provider) | Prevents vendor lock-in and outage risk. | Single provider is simpler but single point of failure. |
-| Structured Output | LangChain `with_structured_output()` | Already in stack, wraps Pydantic models, works across providers. See [[#Structured Output Tooling Deep Dive]] for full comparison. | **Instructor** — cleaner API, retry on failure. **BAML** — strongest type safety, error-tolerant parsing. **Native schemas** — zero deps but provider-specific. |
+| Structured Output | LangChain `with_structured_output()` | Already in stack, wraps Pydantic models, works across providers. See [Structured Output Tooling Deep Dive](#structured-output-tooling-deep-dive) for full comparison. | **Instructor** — cleaner API, retry on failure. **BAML** — strongest type safety, error-tolerant parsing. **Native schemas** — zero deps but provider-specific. |
 | Evaluation | RAGAS + production monitoring | RAGAS for offline eval [^ragas], production monitoring for real-world quality. | **DeepEval** — better explainability [^deepeval]. **Arize Phoenix** — embedding visualization [^eval-tools]. |
 
 ### LangChain: Trade-offs
 
 LangChain has known issues: over-abstraction, heavy dependency graph, frequent breaking changes [^langchain-issues], and default memory setups that waste tokens [^langchain-octomind] ("teams report 30% cost reductions after building custom memory").
 
-**Why it is used here:** The task explicitly prefers LangChain **[T]**. LangGraph handles the stateful retry loop ([[#S15. Agentic Retry Loop|S15]]). LangSmith provides built-in tracing.
+**Why it is used here:** The task explicitly prefers LangChain **[T]**. LangGraph handles the stateful retry loop ([S15](#s15-agentic-retry-loop)). LangSmith provides built-in tracing.
 
 **Without the task constraint:** LlamaIndex for ingestion, plain Python for retrieval, LangGraph only for the agentic workflow [^langchain-vs-llamaindex].
 
 ### Structured Output Tooling Deep Dive
 
-This architecture has 6+ LLM calls that require structured output ([[#S4. Contextual Enrichment|S4]], [[#S13. Query Decomposition|S13]], [[#S15. Agentic Retry Loop|S15]], [[#S17. Structured Output with Citation Enforcement|S17]], [[#S19. Faithfulness Verification|S19]], [[#S20. Offline Evaluation|S20]]). The choice of structured output tooling is a cross-cutting decision that affects reliability, developer experience, and token cost across the pipeline. Three main options:
+This architecture has 6+ LLM calls that require structured output ([S4](#s4-contextual-enrichment), [S13](#s13-query-decomposition), [S15](#s15-agentic-retry-loop), [S17](#s17-structured-output-with-citation-enforcement), [S19](#s19-faithfulness-verification), [S20](#s20-offline-evaluation)). The choice of structured output tooling is a cross-cutting decision that affects reliability, developer experience, and token cost across the pipeline. Three main options:
 
 - **LangChain `with_structured_output()`** — wraps Pydantic models, uses provider-native JSON mode or function calling
 - **[Instructor](https://python.useinstructor.com/)** — Pydantic-first library (11k stars, 3M+ monthly downloads) that patches LLM clients to return validated Pydantic objects with automatic retry on validation failure
@@ -868,12 +868,12 @@ This architecture has 6+ LLM calls that require structured output ([[#S4. Contex
 
 | Solution | How BAML helps |
 | --- | --- |
-| [[#S17. Structured Output with Citation Enforcement\|S17 — Structured output]] | Primary use case. The `Answer → Claim → Citation` schema becomes a `.baml` function with compile-time type safety. Error-tolerant parsing handles edge cases (LLM outputs markdown inside JSON, forgets a closing bracket). Avoids the 13-40% failure rate of prompt-only approaches without requiring constrained decoding. |
-| [[#S13. Query Decomposition\|S13 — Query decomposition]] | The complexity classification + decomposition step becomes a typed BAML function returning `enum QueryType { SIMPLE, COMPLEX }` and `list<string>` sub-queries. Compile-time guarantee that the LLM returns the expected structure. |
-| [[#S15. Agentic Retry Loop\|S15 — Agentic retry loop]] | The sufficiency check (`SUFFICIENT` / `INSUFFICIENT` + rewritten query) becomes a typed function. BAML's error-tolerant parser means fewer retries wasted on format errors. |
-| [[#S4. Contextual Enrichment\|S4 — Contextual enrichment]] | The LLM call that generates chunk context returns a typed `ChunkContext` object. If the LLM produces slightly malformed output, BAML recovers rather than failing the entire ingestion batch. At ~100-200K chunks, this resilience matters. |
-| [[#S19. Faithfulness Verification\|S19 — Faithfulness verification]] | The verification output (`FAITHFUL` / `UNFAITHFUL` + flagged claims) is naturally a typed function. BAML ensures the verifier always returns parseable output. |
-| [[#S20. Offline Evaluation\|S20 — Offline evaluation]] | LLM-as-judge scoring becomes a typed function with guaranteed numeric output. Eliminates string parsing of free-text scores ("I'd rate this a 4 out of 5") — BAML ensures a `float` return type. |
+| [S17 — Structured output](#s17-structured-output-with-citation-enforcement) | Primary use case. The `Answer → Claim → Citation` schema becomes a `.baml` function with compile-time type safety. Error-tolerant parsing handles edge cases (LLM outputs markdown inside JSON, forgets a closing bracket). Avoids the 13-40% failure rate of prompt-only approaches without requiring constrained decoding. |
+| [S13 — Query decomposition](#s13-query-decomposition) | The complexity classification + decomposition step becomes a typed BAML function returning `enum QueryType { SIMPLE, COMPLEX }` and `list<string>` sub-queries. Compile-time guarantee that the LLM returns the expected structure. |
+| [S15 — Agentic retry loop](#s15-agentic-retry-loop) | The sufficiency check (`SUFFICIENT` / `INSUFFICIENT` + rewritten query) becomes a typed function. BAML's error-tolerant parser means fewer retries wasted on format errors. |
+| [S4 — Contextual enrichment](#s4-contextual-enrichment) | The LLM call that generates chunk context returns a typed `ChunkContext` object. If the LLM produces slightly malformed output, BAML recovers rather than failing the entire ingestion batch. At ~100-200K chunks, this resilience matters. |
+| [S19 — Faithfulness verification](#s19-faithfulness-verification) | The verification output (`FAITHFUL` / `UNFAITHFUL` + flagged claims) is naturally a typed function. BAML ensures the verifier always returns parseable output. |
+| [S20 — Offline evaluation](#s20-offline-evaluation) | LLM-as-judge scoring becomes a typed function with guaranteed numeric output. Eliminates string parsing of free-text scores ("I'd rate this a 4 out of 5") — BAML ensures a `float` return type. |
 
 #### Trade-offs by tool
 
@@ -907,7 +907,7 @@ This architecture has 6+ LLM calls that require structured output ([[#S4. Contex
 
 **For production:** The choice depends on team and scale:
 - **Small team, quick iteration** → Instructor. Minimal setup, Pydantic-native, retry handles edge cases.
-- **Many structured LLM calls, multi-provider, prompt engineering is a first-class activity** → BAML. The 6+ structured calls in this architecture ([[#S4. Contextual Enrichment|S4]], [[#S13. Query Decomposition|S13]], [[#S15. Agentic Retry Loop|S15]], [[#S17. Structured Output with Citation Enforcement|S17]], [[#S19. Faithfulness Verification|S19]], [[#S20. Offline Evaluation|S20]]) make the build step overhead worth it. Prompt versioning and compile-time safety pay off as the system grows.
+- **Many structured LLM calls, multi-provider, prompt engineering is a first-class activity** → BAML. The 6+ structured calls in this architecture ([S4](#s4-contextual-enrichment), [S13](#s13-query-decomposition), [S15](#s15-agentic-retry-loop), [S17](#s17-structured-output-with-citation-enforcement), [S19](#s19-faithfulness-verification), [S20](#s20-offline-evaluation)) make the build step overhead worth it. Prompt versioning and compile-time safety pay off as the system grows.
 - **Already deep in LangChain** → Stay with `with_structured_output()` and add manual retry logic where needed.
 
 ---
